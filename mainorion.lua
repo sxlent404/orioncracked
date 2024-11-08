@@ -1,5 +1,3 @@
-
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -27,7 +25,7 @@ local OrionLib = {
 	SaveCfg = false
 }
 
---Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util - Created by 7kayoh
+-- Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util
 local Icons = {}
 
 local Success, Response = pcall(function()
@@ -48,7 +46,7 @@ end
 
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
-Orion.Parent = workspace
+Orion.Parent = game.Workspace
 
 if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
@@ -68,7 +66,7 @@ function OrionLib:IsRunning()
 	if gethui then
 		return Orion.Parent == gethui()
 	else
-		return Orion.Parent == game:GetService("CoreGui")
+		return Orion.Parent == game:GetService("Workspace")
 	end
 
 end
@@ -207,45 +205,35 @@ local function UnpackColor(Color)
 	return Color3.fromRGB(Color.R, Color.G, Color.B)
 end
 
-local function LoadCfg(Name)
-    local configFile = workspace:FindFirstChild(Name .. ".txt")
-    if configFile then
-        local Data = HttpService:JSONDecode(configFile.Value)
-        table.foreach(Data, function(a,b)
-            if OrionLib.Flags[a] then
-                spawn(function() 
-                    if OrionLib.Flags[a].Type == "Colorpicker" then
-                        OrionLib.Flags[a]:Set(UnpackColor(b))
-                    else
-                        OrionLib.Flags[a]:Set(b)
-                    end    
-                end)
-            else
-                warn("Orion Library Config Loader - Could not find ", a ,b)
-            end
-        end)
-    end
+local function LoadCfg(Config)
+	local Data = HttpService:JSONDecode(Config)
+	table.foreach(Data, function(a,b)
+		if OrionLib.Flags[a] then
+			spawn(function() 
+				if OrionLib.Flags[a].Type == "Colorpicker" then
+					OrionLib.Flags[a]:Set(UnpackColor(b))
+				else
+					OrionLib.Flags[a]:Set(b)
+				end    
+			end)
+		else
+			warn("Orion Library Config Loader - Could not find ", a ,b)
+		end
+	end)
 end
 
 local function SaveCfg(Name)
-    local Data = {}
-    for i,v in pairs(OrionLib.Flags) do
-        if v.Save then
-            if v.Type == "Colorpicker" then
-                Data[i] = PackColor(v.Value)
-            else
-                Data[i] = v.Value
-            end
-        end    
-    end
-
-    local configFile = Instance.new("StringValue", workspace)
-    configFile.Name = Name .. ".txt"
-    configFile.Value = tostring(HttpService:JSONEncode(Data))
-end
-local configFile = Instance.new("StringValue", workspace)
-configFile.Name = Name .. ".txt"
-configFile.Value = tostring(HttpService:JSONEncode(Data))
+	local Data = {}
+	for i,v in pairs(OrionLib.Flags) do
+		if v.Save then
+			if v.Type == "Colorpicker" then
+				Data[i] = PackColor(v.Value)
+			else
+				Data[i] = v.Value
+			end
+		end	
+	end
+	writefile(OrionLib.Folder .. "/" .. Name .. ".txt", tostring(HttpService:JSONEncode(Data)))
 end
 
 local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
